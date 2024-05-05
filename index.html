@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAID Демонстрацияo</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #e9eff9 0%, #d6e0f0 100%);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1rem;
+            color: #495057;
+        }
+
+
+        h1 {
+            text-align: center;
+            color: #27496d;
+            font-size: 2.5rem;
+            margin: 2rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+
+
+        .raid-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px;
+        }
+
+        .disk-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .disk, .cell {
+            padding: 20px;
+            margin: 5px;
+            border: none;
+            text-align: center;
+            background: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .disk {
+            font-weight: bold;
+            font-size: 18px;
+            background: #0056b3;
+            color: white;
+            width: 100%;
+            box-shadow: none;
+            margin: 0;
+        }
+
+        .cell {
+            font-size: 15px;
+            color: #333;
+        }
+
+        input[type=number], select, button {
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            box-shadow: none;
+            font-size: 1rem;
+            background: #e9ecef;
+            color: #495057;
+            transition: all 0.2s ease-in-out;
+        }
+
+
+
+        button {
+            background-color: #0088a9;
+            color: white;
+            border-color: #0088a9;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #007b8f;
+            border-color: #006073;
+        }
+
+        @media (max-width: 768px) {
+            .raid-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>RAID Демонстрация</h1>
+<div class="controls-container">
+    <label for="fileCount">Количество файлов:</label>
+    <input type="number" id="fileCount">
+    <select id="raidType">
+        <option value="0">RAID 0</option>
+        <option value="1">RAID 1</option>
+        <option value="5">RAID 5</option>
+        <option value="10">RAID 10</option>
+    </select>
+    <button onclick="showRAID()">Show RAID</button>
+</div>
+<div id="raidDisplay" class="raid-container"></div>
+
+<script>
+    function showRAID() {
+        var fileCount = parseInt(document.getElementById("fileCount").value);
+        var raidType = parseInt(document.getElementById("raidType").value);
+        var raidDisplay = document.getElementById("raidDisplay");
+        raidDisplay.innerHTML = "";
+
+        var disks = [];
+        var cellIndex = 0;
+
+        switch (raidType) {
+            case 0:
+                var diskCount = 2;
+                for (var i = 0; i < fileCount; i++) {
+                    var diskIndex = i % diskCount;
+                    if (!disks[diskIndex]) {
+                        disks[diskIndex] = { id: diskIndex, data: [] };
+                    }
+                    disks[diskIndex].data.push("File " + (i + 1));
+                }
+                break;
+            case 1:
+                // Зеркалирование файла на двух дисках
+                for (var i = 0; i < fileCount; i++) {
+                    disks[0] = disks[0] || { id: 0, data: [] };
+                    disks[1] = disks[1] || { id: 1, data: [] };
+                    disks[0].data.push("File " + (i + 1));
+                    disks[1].data.push("Disk 1 Mirror of File " + (i + 1));
+                }
+                break;
+            case 5:
+                // Предполагаем наличие 3 дисков для RAID 5
+                var diskCount = 3;
+                var parityIndex = fileCount % diskCount;
+                for (var i = 0; i < fileCount; i++) {
+                    var diskIndex = i % diskCount;
+                    if (!disks[diskIndex]) {
+                        disks[diskIndex] = { id: diskIndex, data: [] };
+                    }
+                    if (cellIndex % diskCount === parityIndex){
+                        disks[diskIndex].data.push("Parity Data " + Math.floor(cellIndex / diskCount + 1));
+                    } else {
+                        disks[diskIndex].data.push("File " + (i + 1));
+                    }
+                    cellIndex++;
+                }
+                break;
+            case 10:
+                // RAID 10 с 4 дисками (2 зеркальные группы по 2 диска)
+                var raidGroups = 2;
+                var disksPerGroup = 2;
+                for (var i = 0; i < fileCount; i++) {
+                    for (var j = 0; j < raidGroups * disksPerGroup; j += disksPerGroup) {
+                        var diskIndex = j + (i % disksPerGroup);
+                        if (!disks[diskIndex]) {
+                            disks[diskIndex] = { id: diskIndex, data: [] };
+                        }
+                        disks[diskIndex].data.push("File " + (i + 1));
+                    }
+                }
+                break;
+            default:
+                raidDisplay.innerHTML = "Choose a valid RAID type.";
+                return;
+        }
+
+        disks.forEach(function(disk, index) {
+            var diskColumn = document.createElement("div");
+            diskColumn.classList.add("disk-column");
+
+            var diskDiv = document.createElement("div");
+            diskDiv.classList.add("disk");
+            diskDiv.textContent = "Disk " + disk.id;
+            diskColumn.appendChild(diskDiv);
+
+            disk.data.forEach(function(data) {
+                var cellDiv = document.createElement("div");
+                cellDiv.classList.add("cell");
+                cellDiv.textContent = data;
+                diskColumn.appendChild(cellDiv);
+            });
+
+            raidDisplay.appendChild(diskColumn);
+        });
+    }
+</script>
+
+</body>
+</html>
