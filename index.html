@@ -21,13 +21,22 @@
         }
 
 
-        h1 {
+        h3 {
             text-align: center;
             color: #27496d;
-            font-size: 2.5rem;
+            font-size: 2.0rem;
             margin: 2rem 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
+        h5 {
+            text-align: center;
+            color: #27496d;
+            font-size: 1rem;
+            margin: 1rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
 
         .controls-container {
             display: flex;
@@ -113,10 +122,55 @@
                 align-items: center;
             }
         }
+
+        .header {
+            width: 100%;
+            padding: 20px;
+            background-color: #f7f7f7;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed; /* Шапка будет фиксированной сверху страницы */
+            top: 0;
+            z-index: 1000; /* Убедимся, что шапка всегда наверху */
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1160px;
+            margin: 0 auto;
+        }
+
+        .header-text {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .header-link {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .header-link:hover {
+            text-decoration: underline;
+        }
+
+        body {
+            padding-top: 60px;
+        }
+
     </style>
 </head>
 <body>
-<h1>RAID Демонстрация</h1>
+<header class="header">
+    <div class="header-content">
+        <span class="header-text">Каримов Мурат</span>
+        <a href="https://github.com/Mikarmk" class="header-link" target="_blank">гитхаб - Mikarmk</a>
+    </div>
+</header>
+
+<h3>RAID Демонстрация</h3>
 <div class="controls-container">
     <label for="fileCount">Количество файлов:</label>
     <input type="number" id="fileCount">
@@ -126,7 +180,7 @@
         <option value="5">RAID 5</option>
         <option value="10">RAID 10</option>
     </select>
-    <button onclick="showRAID()">Show RAID</button>
+    <button onclick="showRAID()">Показать RAID</button>
 </div>
 <div id="raidDisplay" class="raid-container"></div>
 
@@ -148,7 +202,7 @@
                     if (!disks[diskIndex]) {
                         disks[diskIndex] = { id: diskIndex, data: [] };
                     }
-                    disks[diskIndex].data.push("File " + (i + 1));
+                    disks[diskIndex].data.push("Файл " + (i + 1));
                 }
                 break;
             case 1:
@@ -156,8 +210,8 @@
                 for (var i = 0; i < fileCount; i++) {
                     disks[0] = disks[0] || { id: 0, data: [] };
                     disks[1] = disks[1] || { id: 1, data: [] };
-                    disks[0].data.push("File " + (i + 1));
-                    disks[1].data.push("Disk 1 Mirror of File " + (i + 1));
+                    disks[0].data.push("Файл " + (i + 1));
+                    disks[1].data.push("Файл " + (i + 1));
                 }
                 break;
             case 5:
@@ -170,9 +224,9 @@
                         disks[diskIndex] = { id: diskIndex, data: [] };
                     }
                     if (cellIndex % diskCount === parityIndex){
-                        disks[diskIndex].data.push("Parity Data " + Math.floor(cellIndex / diskCount + 1));
+                        disks[diskIndex].data.push("Данные паритета " + Math.floor(cellIndex / diskCount + 1));
                     } else {
-                        disks[diskIndex].data.push("File " + (i + 1));
+                        disks[diskIndex].data.push("Файл " + (i + 1));
                     }
                     cellIndex++;
                 }
@@ -187,12 +241,12 @@
                         if (!disks[diskIndex]) {
                             disks[diskIndex] = { id: diskIndex, data: [] };
                         }
-                        disks[diskIndex].data.push("File " + (i + 1));
+                        disks[diskIndex].data.push("Файл " + (i + 1));
                     }
                 }
                 break;
             default:
-                raidDisplay.innerHTML = "Choose a valid RAID type.";
+                raidDisplay.innerHTML = "Нет выбранного RAID.";
                 return;
         }
 
